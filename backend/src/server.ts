@@ -17,6 +17,9 @@ app.get("/", (req: any, res: any) => {
 const usuarioRoutes = require("./routes/usuarioRoutes");
 app.use(usuarioRoutes)
 
+const perguntaRoutes = require("./routes/perguntaRoutes");
+app.use(perguntaRoutes);
+
 // inicia servidor
 app.listen(3000, () => {
   console.log("Servidor rodando na porta 3000");

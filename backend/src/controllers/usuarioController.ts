@@ -1,6 +1,6 @@
 const connection = require("../database/connection");
 
-// rota post
+// criar usuario
 const criarUsuario = (req: any, res: any) => {
   const { nome, email, senha } = req.body;
 

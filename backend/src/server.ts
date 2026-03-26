@@ -20,6 +20,12 @@ app.use(usuarioRoutes)
 const perguntaRoutes = require("./routes/perguntaRoutes");
 app.use(perguntaRoutes);
 
+const respostaRoutes = require("./routes/respostaRoutes");
+app.use(respostaRoutes);
+
+const progressoRoutes = require("./routes/progressoRoutes");
+app.use(progressoRoutes);
+
 // inicia servidor
 app.listen(3000, () => {
   console.log("Servidor rodando na porta 3000");

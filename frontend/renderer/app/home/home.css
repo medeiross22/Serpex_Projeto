@@ -1,0 +1,98 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial;
+}
+
+/* BODY */
+body {
+  background-color: white;
+}
+
+/* HEADER */
+.header {
+  background-color: #0a1a2f;
+  color: white;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 15px 30px;
+  position: relative; /* IMPORTANTE */
+}
+
+/* ESQUERDA */
+.slogan {
+  font-size: 14px;
+}
+
+/* CENTRO */
+.header-center {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+}
+
+.logo {
+  width: 40px;
+}
+
+.nome {
+  color: cyan;
+  font-size: 18px;
+}
+
+/* DIREITA */
+.header-right {
+  text-align: center;
+}
+
+.perfil-img {
+  width: 35px;
+  height: 35px;
+  background-color: white;
+  border-radius: 50%;
+  margin: auto;
+}
+
+.perfil-texto {
+  font-size: 12px;
+}
+
+/* MAIN */
+.main {
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* CARD BOAS-VINDAS */
+.card-boas-vindas {
+  border: 2px solid #0a1a2f;
+  border-radius: 15px;
+  padding: 20px;
+  width: 400px;
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+/* CARD SIMULAÇÃO */
+.card-simulacao {
+  border: 2px solid #0a1a2f;
+  border-radius: 15px;
+  padding: 20px;
+  width: 300px;
+  text-align: center;
+
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.card-simulacao:hover {
+  background-color: #0a1a2f;
+  color: white;
+}

@@ -47,8 +47,16 @@ body {
 
 /* DIREITA */
 .header-right {
-  text-align: center;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
+
+.header-right:hover {
+  opacity: 0.8;
+}
+
 
 .perfil-img {
   width: 35px;

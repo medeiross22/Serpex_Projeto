@@ -7,10 +7,15 @@ const criarUsuario = (req: any, res: any) => {
   const sql = "INSERT INTO Usuario (nome, email, senha) VALUES (?, ?, ?)";
 
   connection.query(sql, [nome, email, senha], (err: any, result: any) => {
-    if (err) {
-      console.error("Erro ao cadastrar usuário:", err);
-      return res.status(500).json({ erro: "Erro no servidor" });
-    }
+if (err) {
+  console.error("Erro ao cadastrar usuário:", err);
+
+  if (err.code === "ER_DUP_ENTRY") {
+    return res.status(400).json({ erro: "Email já cadastrado!" });
+  }
+
+  return res.status(500).json({ erro: "Erro ao cadastrar usuário" });
+}
 
     res.status(201).json({ mensagem: "Usuário cadastrado com sucesso!" });
   });

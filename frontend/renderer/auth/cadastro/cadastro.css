@@ -1,0 +1,85 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial;
+}
+
+/* FUNDO */
+body {
+  height: 100vh;
+  background-color: black;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.serpex-nome {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+/* TEXTO */
+.logo-texto {
+  color: white;
+  font-size: 18px;
+}
+
+/* CARD */
+.container {
+  background-color: white;
+  padding: 40px;
+  border-radius: 20px;
+
+  border: 2px solid cyan;
+
+  width: 320px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* INPUTS */
+input {
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+}
+
+/* PLACEHOLDER */
+input::placeholder {
+  color: #0a1a2f;
+}
+
+/* BOTÃO */
+button {
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+
+  background-color: rgb(39, 236, 250);
+  cursor: pointer;
+
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+button:hover {
+  background-color: #29d8f0;
+}
+
+/* LINK VOLTAR */
+.voltar {
+  font-size: 13px;
+  color: #0a1a2f;
+  text-align: center;
+  cursor: pointer;
+}
+
+.voltar:hover {
+  text-decoration: underline;
+}

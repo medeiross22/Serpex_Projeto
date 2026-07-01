@@ -1,0 +1,11 @@
+//usuario
+As rotas de cadastro e login são responsáveis por permitir que novos usuários criem uma conta e que usuários existentes obtenham um Token JWT. Como o token ainda não existe antes do login, essas rotas permanecem públicas e não utilizam o middleware de autenticação. Após a autenticação bem-sucedida, o cliente passa a enviar o token nas requisições para acessar as funcionalidades protegidas da aplicação.
+
+//pergunta
+As rotas de perguntas passaram a utilizar o middleware autenticarToken. Antes que o controller seja executado, o middleware verifica se o cliente enviou um Token JWT válido no cabeçalho Authorization. Caso o token seja válido, a requisição continua normalmente. Caso contrário, a API retorna um erro de autenticação (401) ou autorização (403), impedindo o acesso às funcionalidades protegidas.
+
+//resposta
+A rota de cadastro de respostas passou a utilizar o middleware autenticarToken. Dessa forma, apenas usuários autenticados conseguem enviar respostas para o sistema. Antes de executar o controller, o middleware verifica a presença e a validade do Token JWT enviado no cabeçalho Authorization. Caso o token seja válido, a resposta é registrada; caso contrário, a API retorna um erro de autenticação.
+
+//progresso
+A rota de progresso foi protegida utilizando o middleware autenticarToken. Antes de executar o controller, o middleware verifica se a requisição possui um Token JWT válido no cabeçalho Authorization. Caso o token seja válido, o usuário pode consultar seu progresso. Caso contrário, a API retorna um erro de autenticação (401) ou autorização (403), impedindo o acesso à informação.

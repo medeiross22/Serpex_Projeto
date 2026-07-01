@@ -1,0 +1,3 @@
+// usuario
+No método de login foi implementada a geração de um JSON Web Token (JWT). Após validar o e-mail e a senha do usuário, a aplicação cria um token contendo informações básicas do usuário, como ID, nome e e-mail. Esse token é assinado utilizando uma chave secreta armazenada no arquivo .env e possui validade de duas horas. A partir desse momento, o cliente deve enviar esse token no cabeçalho Authorization em todas as requisições para rotas protegidas, permitindo que o middleware valide a autenticidade do usuário.
+

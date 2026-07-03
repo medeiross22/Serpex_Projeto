@@ -20,8 +20,10 @@ const SALT_ROUNDS = 10;
  * CADASTRO DE USUÁRIO
  * ======================================================
  *
- * Recebe os dados do usuário, criptografa a senha utilizando
- * bcrypt e salva o novo usuário no banco de dados.
+ * Recebe os dados enviados pelo cliente,
+ * valida as informações,
+ * criptografa a senha utilizando bcrypt
+ * e salva o usuário no banco de dados.
  */
 const criarUsuario = async (req: any, res: any) => {
 
@@ -30,27 +32,107 @@ const criarUsuario = async (req: any, res: any) => {
         // Recebe os dados enviados pelo cliente
         const { nome, email, senha } = req.body;
 
-        // Criptografa a senha antes de armazená-la no banco
+        // ======================================================
+        // VALIDAÇÃO DOS CAMPOS OBRIGATÓRIOS
+        // ======================================================
+
+        if (!nome || !email || !senha) {
+
+            return res.status(400).json({
+                erro: "Nome, email e senha são obrigatórios."
+            });
+
+        }
+
+        // Remove espaços extras
+        const nomeLimpo = nome.trim();
+        const emailLimpo = email.trim().toLowerCase();
+
+        // ======================================================
+        // VALIDAÇÃO DO NOME
+        // ======================================================
+
+        if (nomeLimpo.length === 0) {
+
+            return res.status(400).json({
+                erro: "O nome não pode estar vazio."
+            });
+
+        }
+
+        if (nomeLimpo.length > 100) {
+
+            return res.status(400).json({
+                erro: "O nome deve possuir no máximo 100 caracteres."
+            });
+
+        }
+
+        // ======================================================
+        // VALIDAÇÃO DO EMAIL
+        // ======================================================
+
+        const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        if (!regexEmail.test(emailLimpo)) {
+
+            return res.status(400).json({
+                erro: "Email inválido."
+            });
+
+        }
+
+        if (emailLimpo.length > 100) {
+
+            return res.status(400).json({
+                erro: "O email deve possuir no máximo 100 caracteres."
+            });
+
+        }
+
+        // ======================================================
+        // VALIDAÇÃO DA SENHA
+        // ======================================================
+
+        if (senha.length < 6) {
+
+            return res.status(400).json({
+                erro: "A senha deve possuir pelo menos 6 caracteres."
+            });
+
+        }
+
+        // ======================================================
+        // CRIPTOGRAFA A SENHA
+        // ======================================================
+
         const senhaCriptografada = await bcrypt.hash(
             senha,
             SALT_ROUNDS
         );
 
-        // Comando SQL responsável pelo cadastro
+        // SQL de cadastro
         const sql =
             "INSERT INTO Usuario (nome, email, senha) VALUES (?, ?, ?)";
 
-        // Executa o INSERT utilizando a senha criptografada
+        // Executa o INSERT
         connection.query(
+
             sql,
-            [nome, email, senhaCriptografada],
-            (err: any, result: any) => {
+
+            [
+                nomeLimpo,
+                emailLimpo,
+                senhaCriptografada
+            ],
+
+            (err: any) => {
 
                 if (err) {
 
                     console.error("Erro ao cadastrar usuário:", err);
 
-                    // Verifica se o e-mail já existe
+                    // Email já cadastrado
                     if (err.code === "ER_DUP_ENTRY") {
 
                         return res.status(400).json({
@@ -65,22 +147,25 @@ const criarUsuario = async (req: any, res: any) => {
 
                 }
 
-                // Cadastro realizado com sucesso
-                res.status(201).json({
+                // Cadastro realizado
+                return res.status(201).json({
 
                     mensagem: "Usuário cadastrado com sucesso!"
 
                 });
 
             }
+
         );
 
     } catch (error) {
 
-        console.error(error);
+        console.error("Erro no cadastro:", error);
 
         return res.status(500).json({
-            erro: "Erro ao criptografar a senha."
+
+            erro: "Erro interno do servidor."
+
         });
 
     }
@@ -92,27 +177,42 @@ const criarUsuario = async (req: any, res: any) => {
  * LOGIN DO USUÁRIO
  * ======================================================
  *
- * Procura o usuário pelo e-mail.
+ * Procura o usuário pelo email.
  * Caso exista, compara a senha digitada
- * com a senha criptografada armazenada no banco.
- *
+ * com a senha criptografada utilizando bcrypt.
  * Se estiver correta, gera um Token JWT.
  */
 const loginUsuario = (req: any, res: any) => {
 
-    // Recebe email e senha enviados pelo cliente
+    // Recebe email e senha
     const { email, senha } = req.body;
 
-    /**
-     * Agora procuramos o usuário APENAS pelo e-mail.
-     * A comparação da senha será feita utilizando bcrypt.
-     */
+    // ======================================================
+    // VALIDAÇÃO DOS CAMPOS
+    // ======================================================
+
+    if (!email || !senha) {
+
+        return res.status(400).json({
+
+            erro: "Email e senha são obrigatórios."
+
+        });
+
+    }
+
+    const emailLimpo = email.trim().toLowerCase();
+
+    // SQL responsável por localizar o usuário
     const sql =
         "SELECT * FROM Usuario WHERE email = ?";
 
     connection.query(
+
         sql,
-        [email],
+
+        [emailLimpo],
+
         async (err: any, results: any) => {
 
             if (err) {
@@ -120,7 +220,9 @@ const loginUsuario = (req: any, res: any) => {
                 console.error("Erro no login:", err);
 
                 return res.status(500).json({
+
                     erro: "Erro interno do servidor."
+
                 });
 
             }
@@ -129,55 +231,99 @@ const loginUsuario = (req: any, res: any) => {
             if (results.length === 0) {
 
                 return res.status(401).json({
+
                     erro: "Email ou senha inválidos."
+
                 });
 
             }
 
-            // Recupera o usuário encontrado
             const usuario = results[0];
 
-            /**
-             * Compara a senha digitada
-             * com o hash armazenado no banco.
-             */
-            const senhaCorreta = await bcrypt.compare(
-                senha,
-                usuario.senha
-            );
+            let senhaCorreta = false;
 
-            // Caso a senha esteja incorreta
+            try {
+
+                // Compara a senha digitada
+                // com o hash armazenado
+                senhaCorreta = await bcrypt.compare(
+
+                    senha,
+
+                    usuario.senha
+
+                );
+
+            } catch (error) {
+
+                console.error("Erro ao comparar senha:", error);
+
+                return res.status(500).json({
+
+                    erro: "Erro ao validar senha."
+
+                });
+
+            }
+
+            // Senha incorreta
             if (!senhaCorreta) {
 
                 return res.status(401).json({
+
                     erro: "Email ou senha inválidos."
+
                 });
 
             }
 
-            /**
-             * Geração do Token JWT.
-             */
+            // ======================================================
+            // VERIFICA SE A CHAVE JWT EXISTE
+            // ======================================================
+
+            if (!process.env.JWT_SECRET) {
+
+                console.error("JWT_SECRET não configurado.");
+
+                return res.status(500).json({
+
+                    erro: "Erro de configuração do servidor."
+
+                });
+
+            }
+
+            // ======================================================
+            // GERAÇÃO DO TOKEN JWT
+            // ======================================================
+
             const token = jwt.sign(
 
                 {
+
                     id: usuario.id,
+
                     nome: usuario.nome,
+
                     email: usuario.email
+
                 },
 
                 process.env.JWT_SECRET,
 
                 {
+
                     expiresIn: "2h"
+
                 }
 
             );
 
-            /**
-             * Nunca retornamos a senha para o cliente.
-             */
-            res.status(200).json({
+            // ======================================================
+            // RESPOSTA
+            // ======================================================
+
+            return res.status(200).json({
 
                 mensagem: "Login realizado com sucesso!",
 
@@ -186,9 +332,13 @@ const loginUsuario = (req: any, res: any) => {
                 usuario: {
 
                     id: usuario.id,
+
                     nome: usuario.nome,
+
                     email: usuario.email,
+
                     nivel: usuario.nivel,
+
                     pontuacao: usuario.pontuacao
 
                 }
@@ -201,7 +351,10 @@ const loginUsuario = (req: any, res: any) => {
 
 };
 
-// Exporta os métodos do controller
+// ======================================================
+// EXPORTAÇÃO DOS CONTROLLERS
+// ======================================================
+
 module.exports = {
 
     criarUsuario,

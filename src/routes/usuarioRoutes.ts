@@ -1,65 +1,51 @@
-// Importa o Express
+// ======================================================
+// IMPORTAÇÃO DO EXPRESS
+// ======================================================
+
 const express = require("express");
 
-// Cria uma nova instância do Router
+// Cria o router do Express
 const router = express.Router();
 
-/*
-|--------------------------------------------------------------------------
-| Importação dos Controllers
-|--------------------------------------------------------------------------
-|
-| criarUsuario -> Responsável pelo cadastro de novos usuários.
-| loginUsuario -> Responsável por autenticar o usuário e gerar o JWT.
-|
-*/
+// ======================================================
+// IMPORTAÇÃO DOS CONTROLLERS
+// ======================================================
+
 const {
     criarUsuario,
     loginUsuario
 } = require("../controllers/usuarioController");
 
-/*
-|--------------------------------------------------------------------------
-| ROTAS PÚBLICAS
-|--------------------------------------------------------------------------
-|
-| Essas rotas NÃO utilizam o middleware de autenticação,
-| pois o usuário ainda não possui um Token JWT.
-|
-*/
+// ======================================================
+// ROTAS PÚBLICAS (SEM JWT)
+// ======================================================
 
 /**
- * POST /usuario
+ * ======================================================
+ * CADASTRO DE USUÁRIO
+ * ======================================================
  *
- * Realiza o cadastro de um novo usuário.
+ * Rota responsável por criar um novo usuário no sistema.
  *
- * Body esperado:
- *
- * {
- *   "nome": "Henrique",
- *   "email": "henrique@email.com",
- *   "senha": "123456"
- * }
+ * Método: POST
+ * URL: /usuario
  */
 router.post("/usuario", criarUsuario);
 
 /**
- * POST /login
+ * ======================================================
+ * LOGIN DE USUÁRIO
+ * ======================================================
  *
- * Realiza a autenticação do usuário.
+ * Autentica o usuário e retorna um token JWT.
  *
- * Caso o login seja válido,
- * um Token JWT será gerado e enviado
- * para o cliente.
- *
- * Body esperado:
- *
- * {
- *   "email": "henrique@email.com",
- *   "senha": "123456"
- * }
+ * Método: POST
+ * URL: /login
  */
 router.post("/login", loginUsuario);
 
-// Exporta as rotas
+// ======================================================
+// EXPORTAÇÃO
+// ======================================================
+
 module.exports = router;

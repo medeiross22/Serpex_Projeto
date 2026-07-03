@@ -1,86 +1,49 @@
-// Importa o Express
-const express = require("express");
+// ======================================================
+// IMPORTAÇÃO DO EXPRESS
+// ======================================================
 
-// Cria uma nova instância do Router
+const express = require("express");
 const router = express.Router();
 
-/*
-|--------------------------------------------------------------------------
-| Importação do Middleware de Autenticação
-|--------------------------------------------------------------------------
-|
-| Antes de permitir que o usuário responda uma pergunta,
-| verificamos se ele está autenticado através de um Token JWT.
-|
-*/
+// ======================================================
+// MIDDLEWARE DE AUTENTICAÇÃO JWT
+// ======================================================
+
 const autenticarToken = require("../middlewares/autenticarToken");
 
-/*
-|--------------------------------------------------------------------------
-| Importação do Controller
-|--------------------------------------------------------------------------
-|
-| responderPergunta -> Responsável por registrar uma resposta
-| no banco de dados.
-|
-*/
+// ======================================================
+// CONTROLLER
+// ======================================================
+
 const {
     responderPergunta
 } = require("../controllers/respostaController");
 
-/*
-|--------------------------------------------------------------------------
-| ROTA PROTEGIDA
-|--------------------------------------------------------------------------
-|
-| Esta rota só poderá ser utilizada por usuários autenticados.
-|
-| Header obrigatório:
-|
-| Authorization: Bearer SEU_TOKEN
-|
-*/
+// ======================================================
+// ROTA PROTEGIDA
+// ======================================================
 
 /**
- * ============================================================
  * POST /resposta
- * ============================================================
  *
- * Responsável por registrar uma resposta do usuário.
+ * Registra a resposta do usuário autenticado.
  *
- * Fluxo da requisição:
- *
- * Cliente
- *    │
- *    ▼
- * Envia o Token JWT
- *    │
- *    ▼
- * Middleware autenticarToken
- *    │
- *    ▼
- * Token válido?
- *    │
- *    ├── Não → Retorna 401 ou 403
- *    │
- *    ▼
- * Sim
- *    │
- *    ▼
- * responderPergunta()
- *
+ * Requer Header:
+ * Authorization: Bearer TOKEN
  */
-router.post(
 
+router.post(
     "/resposta",
 
-    // Valida o Token JWT antes de acessar o controller
+    // Verifica JWT antes de acessar controller
     autenticarToken,
 
-    // Executa o controller responsável por salvar a resposta
+    // Registra resposta no banco
     responderPergunta
-
 );
 
-// Exporta as rotas
+// ======================================================
+// EXPORTAÇÃO
+// ======================================================
+
 module.exports = router;

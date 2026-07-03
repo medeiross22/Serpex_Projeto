@@ -1,86 +1,47 @@
-// Importa o Express
-const express = require("express");
+// ======================================================
+// IMPORTAÇÃO DO EXPRESS
+// ======================================================
 
-// Cria uma nova instância do Router
+const express = require("express");
 const router = express.Router();
 
-/*
-|--------------------------------------------------------------------------
-| Importação do Middleware de Autenticação
-|--------------------------------------------------------------------------
-|
-| Antes de permitir que o usuário consulte seu progresso,
-| verificamos se ele está autenticado através de um Token JWT.
-|
-*/
+// ======================================================
+// MIDDLEWARE JWT
+// ======================================================
+
 const autenticarToken = require("../middlewares/autenticarToken");
 
-/*
-|--------------------------------------------------------------------------
-| Importação do Controller
-|--------------------------------------------------------------------------
-|
-| progressoUsuario -> Responsável por retornar o progresso
-| do usuário no sistema.
-|
-*/
+// ======================================================
+// CONTROLLER
+// ======================================================
+
 const {
     progressoUsuario
 } = require("../controllers/progressoController");
 
-/*
-|--------------------------------------------------------------------------
-| ROTA PROTEGIDA
-|--------------------------------------------------------------------------
-|
-| Esta rota exige autenticação.
-|
-| O cliente deverá enviar no Header:
-|
-| Authorization: Bearer SEU_TOKEN
-|
-*/
+// ======================================================
+// ROTA PROTEGIDA (SEGURA)
+// ======================================================
 
 /**
- * ============================================================
- * GET /progresso/:usuario_id
- * ============================================================
+ * GET /progresso
  *
- * Responsável por consultar o progresso do usuário.
+ * Retorna o progresso do usuário autenticado.
  *
- * Fluxo da requisição:
- *
- * Cliente
- *    │
- *    ▼
- * Envia Token JWT
- *    │
- *    ▼
- * Middleware autenticarToken
- *    │
- *    ▼
- * Token válido?
- *    │
- *    ├── Não → Retorna 401 ou 403
- *    │
- *    ▼
- * Sim
- *    │
- *    ▼
- * progressoUsuario()
- *
+ * NÃO usa parâmetro na URL para evitar acesso indevido.
  */
 router.get(
 
-    "/progresso/:usuario_id",
+    "/progresso",
 
-    // Middleware que valida o Token JWT
     autenticarToken,
 
-    // Controller responsável por consultar o progresso
     progressoUsuario
 
 );
 
-// Exporta as rotas
+// ======================================================
+// EXPORTAÇÃO
+// ======================================================
+
 module.exports = router;

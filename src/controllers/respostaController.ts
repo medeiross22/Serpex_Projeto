@@ -9,41 +9,80 @@ const connection = require("../database/connection");
  * RESPONDER PERGUNTA
  * ======================================================
  *
- * Esta função registra a resposta enviada por um usuário.
- *
- * O usuário é identificado através do Token JWT,
- * evitando que outro usuário possa responder em seu nome.
+ * Registra a resposta do usuário autenticado
+ * e verifica se está correta.
  */
 
 const responderPergunta = (req: any, res: any) => {
 
-    /**
-     * Recupera o ID do usuário autenticado.
-     *
-     * Essa informação foi adicionada pelo middleware
-     * autenticarToken após validar o JWT.
-     */
+    // ======================================================
+    // VERIFICA SE O USUÁRIO ESTÁ AUTENTICADO
+    // ======================================================
+
+    if (!req.usuario || !req.usuario.id) {
+
+        return res.status(401).json({
+            erro: "Usuário não autenticado."
+        });
+
+    }
+
     const usuario_id = req.usuario.id;
 
-    // Recebe os demais dados enviados pelo cliente
+    // ======================================================
+    // DADOS DA REQUISIÇÃO
+    // ======================================================
+
     const {
         pergunta_id,
         simulacao_id,
         resposta
     } = req.body;
 
-    /**
-     * Busca a alternativa correta da pergunta.
-     */
+    // ======================================================
+    // VALIDAÇÃO DOS CAMPOS
+    // ======================================================
+
+    if (!pergunta_id || !simulacao_id || !resposta) {
+
+        return res.status(400).json({
+            erro: "Todos os campos são obrigatórios."
+        });
+
+    }
+
+    const respostaLimpa = resposta.toUpperCase().trim();
+
+    // ======================================================
+    // VALIDAÇÃO DA RESPOSTA
+    // ======================================================
+
+    if (!["A", "B", "C"].includes(respostaLimpa)) {
+
+        return res.status(400).json({
+            erro: "Resposta inválida. Use A, B ou C."
+        });
+
+    }
+
+    // ======================================================
+    // BUSCA A PERGUNTA
+    // ======================================================
+
     const sqlPergunta =
         "SELECT opcao_correta FROM Pergunta WHERE id = ?";
 
     connection.query(
+
         sqlPergunta,
+
         [pergunta_id],
+
         (err: any, result: any) => {
 
             if (err) {
+
+                console.error("Erro ao buscar pergunta:", err);
 
                 return res.status(500).json({
                     erro: "Erro ao buscar pergunta."
@@ -51,7 +90,7 @@ const responderPergunta = (req: any, res: any) => {
 
             }
 
-            // Verifica se a pergunta existe
+            // Pergunta não encontrada
             if (result.length === 0) {
 
                 return res.status(404).json({
@@ -60,23 +99,22 @@ const responderPergunta = (req: any, res: any) => {
 
             }
 
-            /**
-             * Verifica se a resposta enviada
-             * é igual à alternativa correta.
-             */
-            const correta =
-                result[0].opcao_correta === resposta;
+            const corretaBD = result[0].opcao_correta.toUpperCase();
 
-            /**
-             * Salva a resposta no banco.
-             */
+            // ======================================================
+            // VERIFICA SE ACERTOU
+            // ======================================================
+
+            const correta = corretaBD === respostaLimpa;
+
+            // ======================================================
+            // SALVA A RESPOSTA
+            // ======================================================
+
             const sql = `
-
                 INSERT INTO Resposta
                 (resposta, correta, usuario_id, simulacao_id, pergunta_id)
-
                 VALUES (?, ?, ?, ?, ?)
-
             `;
 
             connection.query(
@@ -84,7 +122,7 @@ const responderPergunta = (req: any, res: any) => {
                 sql,
 
                 [
-                    resposta,
+                    respostaLimpa,
                     correta,
                     usuario_id,
                     simulacao_id,
@@ -95,14 +133,15 @@ const responderPergunta = (req: any, res: any) => {
 
                     if (err) {
 
+                        console.error("Erro ao salvar resposta:", err);
+
                         return res.status(500).json({
                             erro: "Erro ao salvar resposta."
                         });
 
                     }
 
-                    // Resposta cadastrada com sucesso
-                    res.status(201).json({
+                    return res.status(201).json({
 
                         mensagem: "Resposta registrada com sucesso!",
 
@@ -120,7 +159,10 @@ const responderPergunta = (req: any, res: any) => {
 
 };
 
-// Exporta o controller
+// ======================================================
+// EXPORTAÇÃO
+// ======================================================
+
 module.exports = {
 
     responderPergunta
